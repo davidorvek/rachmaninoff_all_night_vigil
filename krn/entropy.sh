@@ -1,31 +1,21 @@
+rm *.tsv
+rm *.tmp
 for file in *.krn
 do
+	piece=$(grep '!!!OTL@EN' $file | cut -f 2)
+	piece_file=$(grep '!!!OTL@EN' $file | cut -f 2 | sed 's/,//g' | sed 's/ /_/g')
 	fields=$(grep '**kern' $file | awk '{print NF}')
-	part_array=()
-	entropy_array=()
-	for ((i=1; i<fields; i++))
+	for ((i=1; i<=$fields; i++))
 	do
 		part=$(extractx -f $i $file | grep 'I\"' | sed 's/[\*\I"]//g' | sed 's/ /_/g')
-		entropy=$(extract -f $i $file | infot -s | grep 'Average' | awk '{print $6}')
-		part_array+=($part)
-		entropy_array+=($entropy)
+		entropy=$(extractx -f $i $file | infot -s | grep 'Average' | awk '{print $6}')
+		printf "$part\n$entropy" >> $piece_file$part.tmp
 		echo "..."
 	done
-	for j in "${part_array[@]}"
+	for piece in piece_file*
 	do
-		printf "$j\t" >> $file.tmp
-		echo "..."
+		paste $piece_file*Bass* $piece_file*Tenor* $piece_file*Alto* $piece_file*Soprano* >> $piece_file.tsv
+
 	done
-	printf "\n" >> $file.tmp
-	for k in "${entropy_array[@]}"
-	do
-		printf "$k\t" >> $file.tmp
-		echo "..."
-	done
-done
-for file in *.tmp
-do
-	awk 'NF{NF-=1};1' <$file > $file.tsv
-	echo "..."
 done
 rm *.tmp
