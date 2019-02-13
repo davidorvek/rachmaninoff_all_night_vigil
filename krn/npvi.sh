@@ -1,4 +1,3 @@
-rm *.tsv
 rm *.tmp
 for file in *.krn
 do
@@ -8,8 +7,8 @@ do
 	for ((i=1; i<=$fields; i++))
 	do
 		part=$(extractx -f $i $file | grep 'I\"' | sed 's/[\*\I"]//g' | sed 's/ /_/g')
-		entropy=$(extractx -f $i $file | infot -s | grep 'Average' | awk '{print $6}')
-		printf "$part\n$entropy\n" >> $piece_file$part.tmp
+		npvi=$(extractx -f $i $file | ./nPVI)
+		printf "$part\n$npvi\n" >> $piece_file$part.tmp
 		echo "..."
 	done
 done
@@ -34,6 +33,6 @@ do
 	cat $file | tail -1 >> all_soprano.tmp
 
 done
-printf "BASS\tTENOR\tALTO\tSOPRANO\n" > output.tsv
-paste all_bass.tmp all_tenor.tmp all_alto.tmp all_soprano.tmp >> output.tsv
+printf "BASS\tTENOR\tALTO\tSOPRANO\n" > npvi.tsv
+paste all_bass.tmp all_tenor.tmp all_alto.tmp all_soprano.tmp >> npvi.tsv
 rm *.tmp
